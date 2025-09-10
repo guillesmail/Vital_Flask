@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.ipynb_checkpoints/
+
+# Entornos
+.venv/
+venv/
+
+# IDEs / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Datos locales
+DDBB/
+importaciones/
+QR_CREADOS/
+
+# Bases y derivados
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Logs / temp
+*.log
+tmp/

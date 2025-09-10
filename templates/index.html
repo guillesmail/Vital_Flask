@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes</title>
+</head>
+<body>
+    <h1>Clientes - Tabla: {{ tabla }}</h1>
+
+
+
+    <!-- Botones de exportación -->
+    <p>
+        <a href="/exportar/csv?tabla={{ tabla }}&localidad={{ localidad }}">📤 Exportar CSV</a> |
+        <a href="/exportar/xlsx?tabla={{ tabla }}&localidad={{ localidad }}">📤 Exportar Excel</a>
+    </p>
+
+    <!-- Tabla de resultados -->
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Localidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fila in datos %}
+            <tr>
+                <td>{{ fila[0] }}</td>
+                <td>{{ fila[1] }}</td>
+                <td>{{ fila[2] }}</td>
+                <td>{{ fila[3] }}</td>
+                <td>{{ fila[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
