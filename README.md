@@ -1,95 +1,267 @@
-# 📑 Resumen de uso — Sistema de clientes
+🧾 Guía operativa — Sistema de Clientes Vital
+🎯 Objetivo del sistema
 
-## 🔹 Flujo general
-1. **Importar CSVs**  
-   ```bash
-   python import_raw.py
-   ```  
-   - Lee cada archivo definido en `config.json`.  
-   - Crea/reemplaza tablas `raw_xxxx` en SQLite (los datos quedan tal cual vienen).  
+Este proyecto sirve para construir y mantener una base única de clientes de la empresa, a partir de archivos exportados desde distintas plataformas:
 
-2. **Consolidar datos**  
-   ```bash
-   python consolidar.py
-   ```  
-   - Usa los `map` de `config.json`.  
-   - Normaliza y guarda en la tabla unificada `clientes_vital`.  
-   - Clave única = `correo`.  
-     - Si existe → `UPDATE` (se conserva `id_cliente` y `fecha_alta`).  
-     - Si no existe → `INSERT`.  
+🟢 Mercately
 
-3. **Generar mailing** (únicamente correos únicos de todas las tablas raw)  
-   - Se hace directo en DB Browser:  
-   ```sql
-   INSERT OR IGNORE INTO mailing (correo)
-   SELECT DISTINCT LOWER(TRIM("Email")) FROM raw_mercately WHERE "Email" LIKE '%@%';
-   -- Repetir para raw_tienda, raw_nexion, raw_monday...
-   ```
+🔵 Nexion
 
----
+🟡 Monday.com
 
-## 🔹 Tablas principales
-- **raw_xxxx** → datos originales de cada CSV (estructura distinta).  
-- **clientes_vital** → todos los clientes unificados (estructura común).  
-- **mailing** → solo correos únicos de todas las fuentes.  
-- **vista_nexion_fechas** → vista para consultar `Fecha Alta` de `raw_nexion` ya normalizada a `YYYY-MM-DD`.  
+🟣 Tienda (en desarrollo / opcional)
 
----
+El sistema permite:
 
-## 🔹 Consultas útiles (SQL)
+📥 Importar datos sin perder información original
 
-### Ver estructura de una tabla
-```sql
-PRAGMA table_info(raw_nexion);
-```
+🧠 Identificar clientes por un dato lógico único (hoy: correo)
 
-### Ver últimos registros por fecha en raw_nexion
-```sql
-SELECT "Nombre", "E-mail", fecha_alta_norm
-FROM vista_nexion_fechas
-ORDER BY fecha_alta_norm DESC
-LIMIT 10;
-```
+🆔 Asignar a cada cliente un ID interno permanente
 
-### Clientes creados desde 1 enero 2025
-```sql
+🔁 Reimportar datos muchas veces sin duplicar clientes
+
+🧠 Conceptos clave (leer antes de usar)
+🧱 RAW (raw_xxxx)
+
+Son tablas que contienen los datos tal cual vienen del archivo CSV.
+
+Características:
+
+❌ No se limpian
+
+❌ No se normalizan
+
+❌ No se unifican
+
+🔁 Se reemplazan en cada importación
+
+Ejemplos:
+
+raw_mercately
+
+raw_nexion
+
+raw_monday_xxx
+
+raw_tienda
+
+👉 Pensalas como una foto del archivo importado.
+
+🧩 CONSOLIDADO (clientes_vital)
+
+Es la tabla final y unificada de clientes.
+
+Características:
+
+✅ 1 cliente = 1 registro
+
+🔑 Clave lógica: correo
+
+🆔 Clave técnica: id_cliente
+
+🔒 El ID NO cambia nunca
+
+👉 Esta es la tabla principal del sistema.
+
+📂 Estructura del proyecto
+VITAL_FLASK/
+│
+├── config.json              ⚙️ Configuración de orígenes
+├── import_raw.py            📥 CSV → raw_xxxx
+├── consolidar.py            🔄 raw_xxxx → clientes_vital
+├── backup_db.py             💾 Backup automático
+├── validar_config.py        ✅ Valida config.json (opcional)
+├── README.md                📘 Documentación
+│
+├── DDBB/
+│   └── vital_ddbb_clientes.db
+│
+├── importaciones/
+│   ├── mercately.csv
+│   ├── nexion.csv
+│   ├── monday_xxx.csv
+│   └── tienda.csv
+│
+└── backups/
+    └── vital_ddbb_clientes_YYYYMMDD_HHMMSS.db
+
+⚙️ Requisitos
+
+🐍 Python 3.9 o superior
+
+📦 Entorno virtual activado
+
+📚 Librerías:
+
+pip install pandas
+
+🆕 Primer uso (base de datos vacía)
+1️⃣ Configurar config.json
+
+En este archivo se define:
+
+📄 Nombre del archivo CSV
+
+🔣 Separador
+
+🧾 Encoding
+
+🗺️ Mapeo de columnas
+
+Ejemplo:
+
+"mercately": {
+  "archivo": "mercately.csv",
+  "sep": ",",
+  "encoding": "utf-8-sig",
+  "map": {
+    "correo": "Email",
+    "nombre": "FirstName",
+    "telefono": "Phone"
+  }
+}
+
+
+⚠️ Importante sobre Monday
+
+Monday no siempre exporta las mismas columnas
+
+Cada exportación puede cambiar
+
+Siempre verificar:
+
+Que exista la columna de correo
+
+Que el map coincida con el archivo actual
+
+2️⃣ Validar la configuración (recomendado)
+python validar_config.py
+
+
+Evita errores de sintaxis o claves mal definidas.
+
+3️⃣ Backup de la base (SIEMPRE)
+python backup_db.py
+
+
+💾 Se ejecuta antes de importar o consolidar, incluso si la base está vacía.
+
+4️⃣ Importar archivos (CSV → RAW)
+python import_raw.py
+
+
+Qué hace:
+
+📥 Lee todos los CSV definidos
+
+🧱 Crea o reemplaza tablas raw_xxxx
+
+❌ No toca clientes_vital
+
+5️⃣ Consolidar clientes (RAW → FINAL)
+python consolidar.py
+
+
+Qué hace:
+
+🔄 Lee todas las tablas raw_xxxx
+
+🗺️ Usa el map de cada origen
+
+🧠 Para cada correo:
+
+Si existe → actualiza
+
+Si no existe → crea
+
+🔒 El id_cliente se conserva siempre
+
+🔁 Usos posteriores (reimportaciones)
+
+Cuando se vuelve a ejecutar el proceso:
+
+🔁 Las tablas raw_xxxx se reemplazan
+
+🔒 clientes_vital:
+
+NO se borra
+
+NO pierde IDs
+
+Solo se actualiza o agrega información
+
+👉 Un cliente mantiene siempre el mismo ID.
+
+🔐 Seguridad y blindaje
+
+La tabla clientes_vital está protegida por:
+
+🔑 UNIQUE(correo)
+
+🔠 Índice COLLATE NOCASE
+
+🔽 Normalización a minúsculas
+
+Esto evita:
+
+❌ Duplicados por mayúsculas
+
+❌ Cambios de ID
+
+❌ Errores por reimportaciones
+
+🧪 Consultas SQL típicas
+
+Ver todos los clientes:
+
+SELECT * FROM clientes_vital;
+
+
+Buscar por correo:
+
 SELECT *
-FROM vista_nexion_fechas
-WHERE fecha_alta_norm >= '2025-01-01';
-```
+FROM clientes_vital
+WHERE correo = 'cliente@mail.com';
 
-### Clientes entre dos fechas
-```sql
-SELECT *
-FROM vista_nexion_fechas
-WHERE fecha_alta_norm BETWEEN '2024-01-01' AND '2024-12-31';
-```
 
-### Correos únicos en mailing
-```sql
-SELECT COUNT(*) AS total_correos FROM mailing;
-```
+Cantidad total:
 
-### Correos únicos por origen
-```sql
-SELECT 'mercately' AS origen, COUNT(DISTINCT LOWER(TRIM("Email")))
-FROM raw_mercately
-UNION ALL
-SELECT 'tienda', COUNT(DISTINCT LOWER(TRIM("E-mail")))
-FROM raw_tienda
-UNION ALL
-SELECT 'nexion', COUNT(DISTINCT LOWER(TRIM("E-mail")))
-FROM raw_nexion
-UNION ALL
-SELECT 'monday', COUNT(DISTINCT LOWER(TRIM("EMAIL")))
-FROM "raw_monday_CONTACTOS_CENTRALIZADO_1757518290.csv";
-```
+SELECT COUNT(*) FROM clientes_vital;
 
----
+🚨 Errores comunes y solución
+❌ UNIQUE constraint failed
 
-## 🔹 Checklist rápido
-- ➡️ **Agregar nuevo origen** → editar `config.json`.  
-- ➡️ **Importar** → `python import_raw.py`.  
-- ➡️ **Consolidar** → `python consolidar.py`.  
-- ➡️ **Mailing** → ejecutar SQL en DB Browser.  
-- ➡️ **Consultas por fecha** → usar `vista_nexion_fechas`.  
+👉 Hay correos duplicados por mayúsculas
+✔️ Solución: normalizar y conservar el ID más antiguo
+
+❌ JSONDecodeError
+
+👉 config.json mal formado
+✔️ Solución: ejecutar validar_config.py
+
+❌ No aparecen datos nuevos
+
+Revisar:
+
+📄 Nombre del archivo
+
+🔣 Separador
+
+🧾 Encoding
+
+📧 Columna de correo en el map
+
+🧠 Reglas de oro
+
+🛑 Nunca borrar clientes_vital
+🛑 Nunca borrar registros manualmente
+💾 Siempre hacer backup antes de consolidar
+
+⚡ Resumen rápido (para operar sin pensar)
+python backup_db.py
+python import_raw.py
+python consolidar.py
+
+
+👉 Ese es el orden correcto y seguro.

@@ -53,7 +53,33 @@
             "localidad": "LOCALIDAD",
             "id_origen": ""
         }
-    }
+    },
+      "monday_PRESUPUESTOS_PISCINAS_2022_1757601844": {
+        "archivo": "monday_PRESUPUESTOS_PISCINAS_2022_1757601844.csv",
+        "sep": ";",
+        "encoding": "ISO-8859-1",
+        "map": {
+            "nombre": "Name",
+            "apellido": "",
+            "correo": "EMAIL",
+            "telefono": "Teléfono",
+            "localidad": "LOCALIDAD",
+            "id_origen": ""
+      }
+  },
+    "Facturas a Clientes - Por Cliente - Simple #26": {
+      "archivo": "Facturas a Clientes - Por Cliente - Simple #26.csv",
+      "sep": ";",
+      "encoding": "ISO-8859-1",
+      "map": {
+          "nombre": "Name",
+          "apellido": "",
+          "correo": "EMAIL",
+          "telefono": "Teléfono",
+          "localidad": "LOCALIDAD",
+          "id_origen": ""
+  }
+}
 }
 }
 
