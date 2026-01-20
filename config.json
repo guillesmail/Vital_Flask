@@ -1,74 +1,52 @@
 {
-    "db_path": "DDBB/vital_ddbb_clientes.db",
-    "import_folder": "importaciones",
-    "archivos": {
-      "mercately": {
-        "archivo": "mercately.csv",
-        "sep": ",",
-        "encoding": "utf-8-sig",
-        "map": {
-          "nombre": "FirstName",
-          "apellido": "",
-          "correo": "Email",
-          "telefono": "Phone",
-          "localidad": "Localidd",
-          "id_origen": "index"
-        }
-      },
+  "db_path": "DDBB/vital_ddbb_clientes.db",
+  "import_folder": "importaciones",
+  "archivos": {
+    "mercately": {
+      "archivo": "mercately.csv",
+      "prioridad": 50,
+      "sep": ",",
+      "encoding": "utf-8-sig",
+      "map": {
+        "nombre": "FirstName",
+        "apellido": "",
+        "correo": "Email",
+        "telefono": "Phone",
+        "localidad": "Localidd",
+        "id_origen": "index"
+      }
+    },
       "tienda": {
         "archivo": "tienda.csv",
+        "prioridad": 40,
         "sep": ";",
         "encoding": "ISO-8859-1",
         "map": {
-          "nombre": "nombre",
-          "apellido": "",
-          "correo": "correo",
-          "telefono": "tel",
-          "localidad": "localidad",
-          "id_origen": "index"
-        }
-      },
-      "nexion": {
-        "archivo": "nexion.csv",
-        "sep": ";",
-        "encoding": "ISO-8859-1",
-        "map": {
-          "nombre": "Nombre",
+          "nombre": "Nombre y Apellido",
           "apellido": "",
           "correo": "E-mail",
           "telefono": "Teléfono",
-          "localidad": "",
-          "id_origen": "N° CUIT/Doc."
-        }
-      },
-      "monday_CONTACTOS_CENTRALIZADO_1757518290.csv": {
-        "archivo": "monday_CONTACTOS_CENTRALIZADO_1757518290.csv",
-        "sep": ";",
-        "encoding": "ISO-8859-1",
-        "map": {
-            "nombre": "Name",
-            "apellido": "",
-            "correo": "EMAIL",
-            "telefono": "Teléfono",
-            "localidad": "LOCALIDAD",
-            "id_origen": ""
-        }
-    },
-      "monday_PRESUPUESTOS_PISCINAS_2022_1757601844": {
-        "archivo": "monday_PRESUPUESTOS_PISCINAS_2022_1757601844.csv",
-        "sep": ";",
-        "encoding": "ISO-8859-1",
-        "map": {
-            "nombre": "Name",
-            "apellido": "",
-            "correo": "EMAIL",
-            "telefono": "Teléfono",
-            "localidad": "LOCALIDAD",
-            "id_origen": ""
+          "localidad": "Localidad",
+          "id_origen": "index"
       }
-  },
-    "Facturas a Clientes - Por Cliente - Simple #26": {
-      "archivo": "Facturas a Clientes - Por Cliente - Simple #26.csv",
+    },
+    "nexion": {
+      "archivo": "nexion.csv",
+      "prioridad": 100,
+      "sep": ";",
+      "encoding": "utf-8",
+      "map": {
+        "nombre": "Nombre",
+        "apellido": "",
+        "correo": "E-mail",
+        "telefono": "Teléfono",
+        "localidad": "",
+        "id_origen": "N° CUIT/Doc."
+      }
+    },
+    "monday_CONTACTOS": {
+      "archivo": "monday_CONTACTOS_CENTRALIZADO_1757518290.csv",
+      "prioridad": 20,
       "sep": ";",
       "encoding": "ISO-8859-1",
       "map": {
@@ -78,10 +56,7 @@
           "telefono": "Teléfono",
           "localidad": "LOCALIDAD",
           "id_origen": ""
+      }
+    }
   }
 }
-}
-}
-
-  
-  
