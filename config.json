@@ -44,11 +44,11 @@
         "id_origen": "N° CUIT/Doc."
       }
     },
-    "monday_CONTACTOS": {
-      "archivo": "monday_CONTACTOS_CENTRALIZADO_1757518290.csv",
+    "monday_PRESUPUESTOS_PISCINAS_2022_VENDIDAS": {
+      "archivo": "PRESUPUESTOS_PISCINAS_2022_VENDIDAS.csv",
       "prioridad": 20,
       "sep": ";",
-      "encoding": "ISO-8859-1",
+      "encoding": "utf-8",
       "map": {
           "nombre": "Name",
           "apellido": "",
