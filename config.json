@@ -1,62 +1,79 @@
 {
-  "db_path": "DDBB/vital_ddbb_clientes.db",
-  "import_folder": "importaciones",
-  "archivos": {
-    "mercately": {
-      "archivo": "mercately.csv",
-      "prioridad": 50,
-      "sep": ",",
-      "encoding": "utf-8-sig",
-      "map": {
-        "nombre": "FirstName",
-        "apellido": "",
-        "correo": "Email",
-        "telefono": "Phone",
-        "localidad": "Localidd",
-        "id_origen": "index"
-      }
-    },
-      "tienda": {
-        "archivo": "tienda.csv",
-        "prioridad": 40,
+    "db_path": "DDBB/vital_ddbb_clientes.db",
+    "import_folder": "importaciones",
+    "archivos": {
+      "nexion": {
+        "archivo": "nexion.csv",
+        "prioridad": 100,
         "sep": ";",
-        "encoding": "ISO-8859-1",
+        "encoding": "latin-1",
         "map": {
-          "nombre": "Nombre y Apellido",
+          "nombre": "Razon Social",
           "apellido": "",
           "correo": "E-mail",
-          "telefono": "Teléfono",
+          "telefono": "Tel. Movil",
           "localidad": "Localidad",
-          "id_origen": "index"
-      }
-    },
-    "nexion": {
-      "archivo": "nexion.csv",
-      "prioridad": 100,
+          "id_origen": "Codigo" 
+        }
+      },
+      "mercately": {
+        "archivo": "mercately.csv",
+        "prioridad": 50,
+        "sep": ",",
+        "encoding": "utf-8",
+        "map": {
+          "nombre": "name",
+          "apellido": "",
+          "correo": "email",
+          "telefono": "phone",
+          "localidad": "",
+          "id_origen": "phone"
+        }
+      },
+"tienda": {
+      "archivo": "tienda.csv",
+      "prioridad": 40,
       "sep": ";",
-      "encoding": "utf-8",
+      "encoding": "latin-1",
       "map": {
-        "nombre": "Nombre",
+        "//_CAMPOS_OBLIGATORIOS_//": "--- NO BORRAR ---",
+        "id_origen": "E-mail",
+        "nombre": "Nombre y Apellido",
         "apellido": "",
         "correo": "E-mail",
         "telefono": "Teléfono",
-        "localidad": "",
-        "id_origen": "N° CUIT/Doc."
+        "localidad": "Ciudad",
+
+        "//_CAMPOS_ADICIONALES_//": "--- GUARDADOS EN source_tienda ---",
+        "direccion": "Dirección",
+        "numero": "Número",
+        "piso": "Piso",
+        "provincia": "Provincia / Estado",
+        "cp": "Código postal",
+        "pais": "País",
+        "total_consumido": "Total consumido (ARS)",
+        "cantidad_compras": "Cantidad de compras",
+        "ultima_compra": "Última compra",
+        "fecha": "Fecha",
+        "registrado": "Registrado",
+        "newsletter": "Suscripción al newsletter",
+        "marketing": "Marketing",
+        "marketing_update": "Marketing (actualización)"
       }
     },
-    "monday_PRESUPUESTOS_PISCINAS_2022_VENDIDAS": {
-      "archivo": "PRESUPUESTOS_PISCINAS_2022_VENDIDAS.csv",
-      "prioridad": 20,
-      "sep": ";",
-      "encoding": "utf-8",
-      "map": {
+      "monday_piscinas": {
+        "archivo": "monday_piscinas.csv",
+        "prioridad": 30,
+        "sep": ",",
+        "encoding": "utf-8",
+        "map": {
           "nombre": "Name",
           "apellido": "",
-          "correo": "EMAIL",
-          "telefono": "Teléfono",
-          "localidad": "LOCALIDAD",
-          "id_origen": ""
+          "correo": "Email",
+          "telefono": "Phone",
+          "localidad": "",
+          "id_origen": "Name"
+        }
       }
     }
   }
-}
