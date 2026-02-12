@@ -2,20 +2,23 @@
     "db_path": "DDBB/vital_ddbb_clientes.db",
     "import_folder": "importaciones",
     "archivos": {
-      "nexion": {
-        "archivo": "nexion.csv",
-        "prioridad": 100,
-        "sep": ";",
-        "encoding": "latin-1",
-        "map": {
-          "nombre": "Razon Social",
-          "apellido": "",
-          "correo": "E-mail",
-          "telefono": "Tel. Movil",
-          "localidad": "Localidad",
-          "id_origen": "Codigo" 
-        }
-      },
+ "nexion": {
+      "archivo": "nexion.csv",
+      "prioridad": 100,
+      "sep": ";",
+      "encoding": "utf-8",
+      "map": {
+        "//_IDENTIDAD_//": "Cascada: CUIT -> Mail -> Telefono",
+        "id_origen": "N° CUIT/Doc.",
+        
+        "//_DATOS_//": "Mapeo básico para la agenda unificada",
+        "nombre": "Nombre",
+        "apellido": "",
+        "correo": "E-mail",
+        "telefono": "Teléfono",
+        "localidad": "Localidad"
+      }
+    },
       "mercately": {
         "archivo": "mercately.csv",
         "prioridad": 50,

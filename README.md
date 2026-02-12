@@ -1,267 +1,146 @@
 🧾 Guía operativa — Sistema de Clientes Vital
 🎯 Objetivo del sistema
 
-Este proyecto sirve para construir y mantener una base única de clientes de la empresa, a partir de archivos exportados desde distintas plataformas:
+Este proyecto sirve para construir y mantener una base única de clientes de la empresa, a partir de archivos exportados desde distintas plataformas.
 
-🟢 Mercately
+📘 Sistema de Gestión de Clientes VITAL (Data Warehouse)
+Este sistema implementa un Data Warehouse de Clientes que centraliza, limpia y unifica la información proveniente de múltiples fuentes (Tienda Nube, Mercately, Nexion, Monday) para crear una Agenda Maestra Única.
 
-🔵 Nexion
+🏗️ Arquitectura del Sistema (Las 3 Capas)
+El sistema procesa los datos en tres etapas para garantizar seguridad e integridad histórica:
 
-🟡 Monday.com
+1. Capa BRONCE (Raw)
+Tablas: raw_tienda, raw_nexion, raw_mercately, etc.
 
-🟣 Tienda (en desarrollo / opcional)
+Función: Es la "mesa de entrada". Recibe los archivos CSV tal cual vienen, sin tocar nada.
 
-El sistema permite:
+Comportamiento: Se borra y sobrescribe cada vez que importás un archivo nuevo. Es volátil.
 
-📥 Importar datos sin perder información original
+2. Capa PLATA (Source / Histórico)
+Tablas: source_tienda, source_nexion, source_mercately.
 
-🧠 Identificar clientes por un dato lógico único (hoy: correo)
+Función: Es la memoria a largo plazo de cada plataforma.
 
-🆔 Asignar a cada cliente un ID interno permanente
+Comportamiento: SMART MERGE (Fusión Inteligente).
 
-🔁 Reimportar datos muchas veces sin duplicar clientes
+Si el archivo nuevo trae datos frescos → Actualiza.
 
-🧠 Conceptos clave (leer antes de usar)
-🧱 RAW (raw_xxxx)
+Si el archivo nuevo viene vacío en un campo que antes tenía datos → Protege el dato viejo (No borra información histórica).
 
-Son tablas que contienen los datos tal cual vienen del archivo CSV.
+Si el cliente es nuevo → Lo crea.
 
-Características:
+Aquí se guardan TODAS las columnas originales (incluso las que no se usan en la agenda maestra).
 
-❌ No se limpian
+3. Capa ORO (Consolidado)
+Tabla: clientes_vital.
 
-❌ No se normalizan
+Función: Es la "Ficha Maestra" o "La Verdad" de la empresa.
 
-❌ No se unifican
+Lógica: Unifica las fuentes basándose en Prioridades.
 
-🔁 Se reemplazan en cada importación
+Nexion (Prioridad 100): La verdad absoluta para Nombres/Apellidos.
 
-Ejemplos:
+Mercately (Prioridad 50): La autoridad en Teléfonos.
 
-raw_mercately
+Tienda (Prioridad 40): Aporta Emails y datos de facturación.
 
-raw_nexion
+Monday (Prioridad 30): Aporta estados de obra/piscina.
 
-raw_monday_xxx
+Identidad: Une a las personas por Email (Tienda/Nexion) o Teléfono (Mercately), evitando duplicados.
 
-raw_tienda
+🛠️ Herramientas y Scripts
+🟢 import_raw.py (La Aspiradora)
+Lee los archivos de la carpeta importaciones/ y los vuelca en las tablas raw_.
 
-👉 Pensalas como una foto del archivo importado.
+Uso: Ejecutar siempre que se traigan archivos nuevos.
 
-🧩 CONSOLIDADO (clientes_vital)
+🟡 procesar_fuentes.py (El Cerebro - Smart Merge)
+Toma los datos de raw_, los limpia y los fusiona con source_.
 
-Es la tabla final y unificada de clientes.
+Menú Interactivo: Permite elegir qué fuente procesar (ej: solo Tienda).
 
-Características:
+Protección: Aplica la lógica de "rellenar huecos" (combine_first) para no perder datos previos si el Excel nuevo viene incompleto.
 
-✅ 1 cliente = 1 registro
+🔴 consolidar.py (El Unificador)
+Lee todas las tablas source_ y genera la tabla maestra clientes_vital respetando las prioridades configuradas en config.json.
 
-🔑 Clave lógica: correo
+🛡️ backup.py (Seguridad)
+Crea una copia de seguridad completa de la base de datos en la carpeta backups/.
 
-🆔 Clave técnica: id_cliente
+Rotación: Guarda los últimos 10 backups y borra los viejos automáticamente.
 
-🔒 El ID NO cambia nunca
+Recomendación: Ejecutar antes de cualquier proceso importante.
 
-👉 Esta es la tabla principal del sistema.
+🧪 eliminar_random.py (Chaos Monkey - Solo Testing)
+Herramienta peligrosa para eliminar registros al azar y probar la capacidad de recuperación del sistema.
 
-📂 Estructura del proyecto
-VITAL_FLASK/
-│
-├── config.json              ⚙️ Configuración de orígenes
-├── import_raw.py            📥 CSV → raw_xxxx
-├── consolidar.py            🔄 raw_xxxx → clientes_vital
-├── backup_db.py             💾 Backup automático
-├── validar_config.py        ✅ Valida config.json (opcional)
-├── README.md                📘 Documentación
-│
-├── DDBB/
-│   └── vital_ddbb_clientes.db
-│
-├── importaciones/
-│   ├── mercately.csv
-│   ├── nexion.csv
-│   ├── monday_xxx.csv
-│   └── tienda.csv
-│
-└── backups/
-    └── vital_ddbb_clientes_YYYYMMDD_HHMMSS.db
+⚙️ Configuración (config.json)
+El archivo config.json es el centro de control. Define cómo se lee cada archivo.
 
-⚙️ Requisitos
+Campos Clave:
 
-🐍 Python 3.9 o superior
+prioridad: Número alto gana (100 le gana a 50).
 
-📦 Entorno virtual activado
+id_origen: Qué columna se usa como DNI en esa plataforma (ej: "E-mail" en Tienda, "phone" en Mercately, "Codigo" en Nexion).
 
-📚 Librerías:
+sep: Separador del CSV (, o ;).
 
-pip install pandas
+encoding: Formato del archivo (utf-8 o latin-1 para Excel en español).
 
-🆕 Primer uso (base de datos vacía)
-1️⃣ Configurar config.json
+map: Diccionario que le dice al sistema qué columna del CSV corresponde a los datos maestros (nombre, correo, telefono).
 
-En este archivo se define:
+🚀 Manual de Uso (Workflow Diario)
+Paso 1: Preparación
+Descargá los CSV de las plataformas (Tienda, Nexion, etc.).
 
-📄 Nombre del archivo CSV
+Guardalos en la carpeta importaciones/ con el nombre correcto (ej: tienda.csv).
 
-🔣 Separador
+(Opcional pero recomendado) Ejecutá el backup:
 
-🧾 Encoding
+Bash
+python backup.py
+Paso 2: Importación Cruda
+Cargá los archivos nuevos al sistema:
 
-🗺️ Mapeo de columnas
-
-Ejemplo:
-
-"mercately": {
-  "archivo": "mercately.csv",
-  "sep": ",",
-  "encoding": "utf-8-sig",
-  "map": {
-    "correo": "Email",
-    "nombre": "FirstName",
-    "telefono": "Phone"
-  }
-}
-
-
-⚠️ Importante sobre Monday
-
-Monday no siempre exporta las mismas columnas
-
-Cada exportación puede cambiar
-
-Siempre verificar:
-
-Que exista la columna de correo
-
-Que el map coincida con el archivo actual
-
-2️⃣ Validar la configuración (recomendado)
-python validar_config.py
-
-
-Evita errores de sintaxis o claves mal definidas.
-
-3️⃣ Backup de la base (SIEMPRE)
-python backup_db.py
-
-
-💾 Se ejecuta antes de importar o consolidar, incluso si la base está vacía.
-
-4️⃣ Importar archivos (CSV → RAW)
+Bash
 python import_raw.py
+Verificá que no haya errores de "File not found" de los archivos que te interesan.
 
+Paso 3: Procesamiento Inteligente
+Actualizá el historial de la fuente que acabas de subir:
 
-Qué hace:
+Bash
+python procesar_fuentes.py
+Elegí la opción en el menú (ej: t para Tienda).
 
-📥 Lee todos los CSV definidos
+Revisá el reporte:
 
-🧱 Crea o reemplaza tablas raw_xxxx
+Nuevos: Clientes que nunca antes habías visto.
 
-❌ No toca clientes_vital
+Actualizados: Clientes que ya tenías, pero que ahora tienen datos más frescos (o iguales).
 
-5️⃣ Consolidar clientes (RAW → FINAL)
+Paso 4: Consolidación Final
+Generá la agenda maestra unificada:
+
+Bash
 python consolidar.py
+¡Listo! Tu tabla clientes_vital ahora tiene la información más reciente y limpia de todas las plataformas.
 
+🚨 Solución de Problemas Comunes
+❌ Error: utf-8 codec can't decode byte...
 
-Qué hace:
+Causa: El archivo CSV tiene acentos y se guardó en formato Windows.
 
-🔄 Lee todas las tablas raw_xxxx
+Solución: En config.json, cambiá "encoding": "utf-8" por "encoding": "latin-1".
 
-🗺️ Usa el map de cada origen
+❌ Error: Expected 1 fields in line X, saw Y
 
-🧠 Para cada correo:
+Causa: El separador configurado no coincide con el archivo.
 
-Si existe → actualiza
+Solución: Revisá si el archivo usa comas (,) o punto y coma (;) y actualizá el campo "sep" en config.json.
 
-Si no existe → crea
+❌ No veo los datos nuevos en la tabla final
 
-🔒 El id_cliente se conserva siempre
+Causa: Quizás el id_origen (mail/teléfono) vino vacío en el Excel.
 
-🔁 Usos posteriores (reimportaciones)
-
-Cuando se vuelve a ejecutar el proceso:
-
-🔁 Las tablas raw_xxxx se reemplazan
-
-🔒 clientes_vital:
-
-NO se borra
-
-NO pierde IDs
-
-Solo se actualiza o agrega información
-
-👉 Un cliente mantiene siempre el mismo ID.
-
-🔐 Seguridad y blindaje
-
-La tabla clientes_vital está protegida por:
-
-🔑 UNIQUE(correo)
-
-🔠 Índice COLLATE NOCASE
-
-🔽 Normalización a minúsculas
-
-Esto evita:
-
-❌ Duplicados por mayúsculas
-
-❌ Cambios de ID
-
-❌ Errores por reimportaciones
-
-🧪 Consultas SQL típicas
-
-Ver todos los clientes:
-
-SELECT * FROM clientes_vital;
-
-
-Buscar por correo:
-
-SELECT *
-FROM clientes_vital
-WHERE correo = 'cliente@mail.com';
-
-
-Cantidad total:
-
-SELECT COUNT(*) FROM clientes_vital;
-
-🚨 Errores comunes y solución
-❌ UNIQUE constraint failed
-
-👉 Hay correos duplicados por mayúsculas
-✔️ Solución: normalizar y conservar el ID más antiguo
-
-❌ JSONDecodeError
-
-👉 config.json mal formado
-✔️ Solución: ejecutar validar_config.py
-
-❌ No aparecen datos nuevos
-
-Revisar:
-
-📄 Nombre del archivo
-
-🔣 Separador
-
-🧾 Encoding
-
-📧 Columna de correo en el map
-
-🧠 Reglas de oro
-
-🛑 Nunca borrar clientes_vital
-🛑 Nunca borrar registros manualmente
-💾 Siempre hacer backup antes de consolidar
-
-⚡ Resumen rápido (para operar sin pensar)
-python backup_db.py
-python import_raw.py
-python consolidar.py
-
-
-👉 Ese es el orden correcto y seguro.
+Solución: El sistema descarta automáticamente registros sin ID para no ensuciar la base. Revisá el reporte de procesar_fuentes.py (sección "Ignorados").
