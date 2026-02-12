@@ -31,3 +31,5 @@ QR_CREADOS/
 # Logs / temp
 *.log
 tmp/
+
+backups/
